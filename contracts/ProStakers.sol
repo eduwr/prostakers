@@ -37,6 +37,5 @@ contract ProStakers {
         stakedAmount[_staker] = 0 ether;
         stakersCount--;
     }
-
-
+    
 }

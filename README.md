@@ -1,6 +1,7 @@
 # Sample Hardhat Project
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a
+script that deploys that contract.
 
 Try running some of the following tasks:
 
@@ -12,18 +13,22 @@ npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
 
-
 # Technologies - React / Angular, Nest JS, Solidity
 
 You need to write:
 
-## [ ] 1 Staking SmartContract where there will be addresses and the number of tokens attached
+## [X] 1 Staking SmartContract where there will be addresses and the number of tokens attached
+
 ## [ ] 2 - On the front client must connect his metamask and:
+
 ### [ ] 2.1 see the number of tokens on his balance
+
 ### [ ] 2.2 put tokens on the balance
+
 ### [ ] 2.3 claim tokens from the balance
 
 ## [ ] 3 Write a Nest JS app that listens to events from the smart contract with Ether.JS and saves event payloads in DB (MySQL / SQLite).
+
 ### [ ] 3.1 Display the data on the website
 
 > Please:
