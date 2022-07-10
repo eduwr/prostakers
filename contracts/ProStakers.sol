@@ -21,4 +21,17 @@ contract ProStakers {
         emit Deposit(msg.sender, address(this), msg.value);
     }
 
+    function withdraw() public payable {
+        require(isStaker[msg.sender], "Sender must be a staker");
+
+        (bool success,) = (msg.sender).call{value : stakedAmount[msg.sender]}("");
+        require(success, "Failed to withdraw money from contract.");
+        cleanup(msg.sender);
+    }
+
+    function cleanup(address _staker) private {
+        isStaker[_staker] = false;
+        stakedAmount[_staker] = 0 ether;
+        stakersCount--;
+    }
 }
