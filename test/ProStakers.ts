@@ -31,10 +31,12 @@ describe("ProStakers", () => {
         .not.throw;
     });
 
-    it("Should throw if value is less than 0.01 ETH", async () => {
-      const amount = ethers.utils.parseEther("0.001");
-      const trX = proStakers.connect(staker1).deposit({ value: amount });
-      expect(trX).eventually.to.rejectedWith(Error, "Minimum amount is   0.01");
+    it("Stakers should be able to send ETH to the contract", async () => {
+      const amount = ethers.utils.parseEther("0.1");
+      const trX = await proStakers.connect(staker1).deposit({ value: amount });
+      await trX.wait();
+      const balance = await ethers.provider.getBalance(proStakers.address);
+      expect(balance).to.equal(ethers.utils.parseEther("0.1"));
     });
   });
 });
