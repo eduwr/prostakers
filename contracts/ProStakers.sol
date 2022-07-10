@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 contract ProStakers {
     address[] public stakers;
+    uint public stakersCount = 0;
     mapping(address => bool) public isStaker;
     mapping(address => uint) public stakedAmount;
 
@@ -15,6 +16,7 @@ contract ProStakers {
         stakers.push(msg.sender);
         isStaker[msg.sender] = true;
         stakedAmount[msg.sender] = msg.value;
+        stakersCount++;
 
         emit Deposit(msg.sender, address(this), msg.value);
     }
