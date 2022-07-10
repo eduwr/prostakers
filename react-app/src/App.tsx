@@ -6,9 +6,11 @@ import { useProStakersContract } from "./hooks/useProStakersContract";
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
   const [accountBalance, setAccountBalance] = useState<string>("");
-  const [amount, setAmount] = useState<string>("");
+  const [depositAmount, setDepositAmount] = useState<string>("");
+  const [withdrawAmount, setWithdrawAmount] = useState<string>("");
 
-  const { deposit, getStakedBalance, stakedBalance } = useProStakersContract();
+  const { deposit, withdraw, getStakedBalance, stakedBalance } =
+    useProStakersContract();
 
   const getAccountBalance = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -78,17 +80,39 @@ function App() {
       </header>
       <main>
         <form>
-          <label>Amount:</label>
-          <input value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <label>Deposit:</label>
+          <input
+            value={depositAmount}
+            onChange={(e) => setDepositAmount(e.target.value)}
+          />
+          <span> ETH</span>
         </form>
         <button
           type={"submit"}
           onClick={(e) => {
             e.preventDefault();
-            deposit(amount);
+            deposit(depositAmount);
           }}
         >
-          Deposit amount
+          Deposit Amount
+        </button>
+
+        <form>
+          <label>Withdraw:</label>
+          <input
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(e.target.value)}
+          />
+          <span> ETH</span>
+        </form>
+        <button
+          type={"submit"}
+          onClick={(e) => {
+            e.preventDefault();
+            withdraw(withdrawAmount);
+          }}
+        >
+          Withdraw
         </button>
       </main>
 
