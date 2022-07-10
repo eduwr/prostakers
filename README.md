@@ -11,3 +11,24 @@ GAS_REPORT=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
+
+
+# Technologies - React / Angular, Nest JS, Solidity
+
+You need to write:
+
+## [ ] 1 Staking SmartContract where there will be addresses and the number of tokens attached
+## [ ] 2 - On the front client must connect his metamask and:
+### [ ] 2.1 see the number of tokens on his balance
+### [ ] 2.2 put tokens on the balance
+### [ ] 2.3 claim tokens from the balance
+
+## [ ] 3 Write a Nest JS app that listens to events from the smart contract with Ether.JS and saves event payloads in DB (MySQL / SQLite).
+### [ ] 3.1 Display the data on the website
+
+> Please:
+> - don’t use async/await and use rxjs for getting investor list from smart contract
+> - structure everything in one repo that can be launched on localhost via hardhat.
+> - write readme
+
+And remember - the one who’s making the task is responsible for validating his understanding and the requirements
