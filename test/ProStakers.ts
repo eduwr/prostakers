@@ -7,15 +7,14 @@ describe("ProStakers", () => {
   let proStakers: ProStakers;
 
   let owner: SignerWithAddress;
-  let staker1: SignerWithAddress;
-  let staker2: SignerWithAddress;
+  let staker: SignerWithAddress;
 
   beforeEach(async () => {
     const ProStakers = await ethers.getContractFactory("ProStakers");
     proStakers = (await ProStakers.deploy()) as ProStakers;
     await proStakers.deployed();
 
-    [owner, staker1, staker2] = await ethers.getSigners();
+    [owner, staker] = await ethers.getSigners();
   });
 
   describe("Deployment", () => {
@@ -25,18 +24,36 @@ describe("ProStakers", () => {
   });
 
   describe("Deposit", () => {
-    it("Should not to throw when staker call stake function", async () => {
-      const amount = ethers.utils.parseEther("0.1");
-      expect(await proStakers.connect(staker1).deposit({ value: amount })).to
-        .not.throw;
-    });
-
     it("Stakers should be able to send ETH to the contract", async () => {
       const amount = ethers.utils.parseEther("0.1");
-      const trX = await proStakers.connect(staker1).deposit({ value: amount });
+      const trX = await proStakers.connect(staker).deposit({ value: amount });
       await trX.wait();
       const balance = await ethers.provider.getBalance(proStakers.address);
       expect(balance).to.equal(ethers.utils.parseEther("0.1"));
+    });
+  });
+
+  describe("Withdraw", () => {
+    it("Stakers should be able to withdraw staked ETH from the contract", async () => {
+      const amount = ethers.utils.parseEther("1");
+      let trX = await proStakers.connect(staker).deposit({ value: amount });
+      await trX.wait();
+      let contractBalance = await ethers.provider.getBalance(
+        proStakers.address
+      );
+      expect(contractBalance).to.equal(ethers.utils.parseEther("1"));
+      const stakerBalance = await ethers.provider.getBalance(staker.address);
+
+      trX = await proStakers.connect(staker).withdraw();
+      await trX.wait();
+
+      const stakerBalanceAfter = await ethers.provider.getBalance(
+        staker.address
+      );
+
+      contractBalance = await ethers.provider.getBalance(proStakers.address);
+      expect(stakerBalanceAfter > stakerBalance).to.be.true;
+      expect(contractBalance).to.equal(0);
     });
   });
 });
