@@ -19,7 +19,7 @@ You need to write:
 
 ## [X] 1 Staking SmartContract where there will be addresses and the number of tokens attached
 
-## [ ] 2 - On the front client must connect his metamask and:
+## [!] 2 - On the front client must connect his metamask and:
 
 ### [ ] 2.1 see the number of tokens on his balance
 

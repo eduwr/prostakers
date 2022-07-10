@@ -1,45 +1,80 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+import { ethers } from "ethers";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentAccount, setCurrentAccount] = useState("");
+  const [accountBalance, setAccountBalance] = useState<string>();
+
+  const getAccountBalance = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const balance = await signer.getBalance();
+    return ethers.utils.formatEther(balance);
+  };
+
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        alert("Get MetaMask!");
+        return;
+      }
+
+      const accounts = await ethereum.request({
+        method: "eth_requestAccounts",
+      });
+
+      console.log("Connected", accounts[0]);
+
+      const balance = await getAccountBalance();
+      setCurrentAccount(accounts[0]);
+      setAccountBalance(balance);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const checkConnectedWallet = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        return;
+      }
+
+      const accounts = await ethereum.request({ method: "eth_accounts" });
+
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+
+        const balance = await getAccountBalance();
+
+        setCurrentAccount(account);
+        setAccountBalance(balance);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    checkConnectedWallet();
+  }, []);
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
+        <button onClick={connectWallet}>Connect Wallet</button>
+        <p>{currentAccount}</p>
+        <span>Balance: {accountBalance}</span>
       </header>
+      <main>This is the app</main>
+
+      <footer>My footer</footer>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
