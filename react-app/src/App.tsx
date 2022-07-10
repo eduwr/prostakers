@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { ethers } from "ethers";
-import abi from "../../artifacts/contracts/ProStakers.sol/ProStakers.json";
+import abi from "./contracts/abi.json";
+import proStakers from "./contracts/proStakers.json";
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
-  const [accountBalance, setAccountBalance] = useState<string>();
-  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-  const contractAbi = abi.abi;
+  const [accountBalance, setAccountBalance] = useState<string>("");
+  const [amount, setAmount] = useState<string>();
+  const contractAddress = proStakers.address;
+  const contractABI = abi.abi;
 
   const getAccountBalance = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -66,6 +68,37 @@ function App() {
     checkConnectedWallet();
   }, []);
 
+  const deposit = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        console.log("Ethereum object doesn't exist!");
+        return;
+      }
+
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const proStakersContract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        signer
+      );
+
+      if (!amount) return;
+
+      const proStakersTxn = await proStakersContract.deposit({
+        value: amount && ethers.utils.parseEther(amount),
+      });
+      console.log("Depositing...", proStakersTxn.hash);
+
+      await proStakersTxn.wait();
+      console.log("Deposited -- ", proStakersTxn.hash);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -73,7 +106,21 @@ function App() {
         <p>{currentAccount}</p>
         <span>Balance: {accountBalance}</span>
       </header>
-      <main>This is the app</main>
+      <main>
+        <form>
+          <label>Amount:</label>
+          <input value={amount} onChange={(e) => setAmount(e.target.value)} />
+        </form>
+        <button
+          type={"submit"}
+          onClick={(e) => {
+            e.preventDefault();
+            deposit();
+          }}
+        >
+          Deposit amount
+        </button>
+      </main>
 
       <footer>My footer</footer>
     </div>
