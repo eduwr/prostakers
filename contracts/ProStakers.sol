@@ -8,6 +8,7 @@ contract ProStakers {
     mapping(address => uint) public stakedAmount;
 
     event Deposit(address indexed _from, address indexed _to, uint _value);
+    event Withdraw(address indexed _from, address indexed _to, uint _value);
 
     function deposit() public payable {
         require(msg.value >= 0.01 ether, "Minimum amount is 0.01");
@@ -26,6 +27,8 @@ contract ProStakers {
 
         (bool success,) = (msg.sender).call{value : stakedAmount[msg.sender]}("");
         require(success, "Failed to withdraw money from contract.");
+
+        emit Withdraw(address(this), msg.sender, stakedAmount[msg.sender]);
         cleanup(msg.sender);
     }
 
@@ -34,4 +37,6 @@ contract ProStakers {
         stakedAmount[_staker] = 0 ether;
         stakersCount--;
     }
+
+
 }
