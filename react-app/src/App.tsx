@@ -8,7 +8,7 @@ function App() {
   const [accountBalance, setAccountBalance] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
 
-  const { deposit } = useProStakersContract();
+  const { deposit, getStakedBalance, stakedBalance } = useProStakersContract();
 
   const getAccountBalance = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -65,6 +65,7 @@ function App() {
 
   useEffect(() => {
     checkConnectedWallet();
+    getStakedBalance();
   }, []);
 
   return (
@@ -73,6 +74,7 @@ function App() {
         <button onClick={connectWallet}>Connect Wallet</button>
         <p>{currentAccount}</p>
         <span>Balance: {accountBalance}</span>
+        <span>Staked: {stakedBalance}</span>
       </header>
       <main>
         <form>

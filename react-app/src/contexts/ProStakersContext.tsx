@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode } from "react";
+import React, { createContext, ReactNode, useState } from "react";
 
 import proStakers from "../contracts/proStakers.json";
 import abi from "../contracts/abi.json";
@@ -12,6 +12,8 @@ export interface ProStakersContextValues {
   address: string;
   contractABI: ReturnType<() => typeof abi.abi>;
   deposit: (amount: string) => void;
+  getStakedBalance: () => void;
+  stakedBalance: string;
 }
 
 export const ProStakersContext = createContext<ProStakersContextValues>(
@@ -21,6 +23,8 @@ export const ProStakersContext = createContext<ProStakersContextValues>(
 export const ProStakersProvider = ({ children }: ProviderProps) => {
   const address = proStakers.address;
   const contractABI = abi.abi;
+
+  const [stakedBalance, setStakedBalance] = useState("");
 
   const deposit = async (amount: string) => {
     try {
@@ -53,12 +57,38 @@ export const ProStakersProvider = ({ children }: ProviderProps) => {
     }
   };
 
+  const getStakedBalance = async () => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const proStakersContract = new ethers.Contract(
+          address,
+          contractABI,
+          signer
+        );
+
+        const balance = await proStakersContract.getStakedBalance();
+
+        setStakedBalance(ethers.utils.formatEther(balance));
+        console.log({ balance });
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <ProStakersContext.Provider
       value={{
         contractABI,
         address,
         deposit,
+        getStakedBalance,
+        stakedBalance,
       }}
     >
       {children}

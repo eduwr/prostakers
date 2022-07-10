@@ -41,4 +41,10 @@ contract ProStakers {
             stakersCount--;
         }
     }
+
+    function getStakedBalance() public view returns (uint) {
+        return stakedAmount[msg.sender];
+    }
+
+
 }
