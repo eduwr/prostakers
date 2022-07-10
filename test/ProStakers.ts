@@ -24,7 +24,7 @@ describe("ProStakers", () => {
   });
 
   describe("Deposit", () => {
-    it("Stakers should be able to send ETH to the contract", async () => {
+    it("Stakers should be able to send ETH to the contracts", async () => {
       const amount = ethers.utils.parseEther("0.1");
       const trX = await proStakers.connect(staker).deposit({ value: amount });
       await trX.wait();
@@ -34,7 +34,7 @@ describe("ProStakers", () => {
   });
 
   describe("Withdraw", () => {
-    it("Stakers should be able to withdraw staked ETH from the contract", async () => {
+    it("Stakers should be able to withdraw staked ETH from the contracts", async () => {
       const amount = ethers.utils.parseEther("1");
       let trX = await proStakers.connect(staker).deposit({ value: amount });
       await trX.wait();
@@ -44,7 +44,9 @@ describe("ProStakers", () => {
       expect(contractBalance).to.equal(ethers.utils.parseEther("1"));
       const stakerBalance = await ethers.provider.getBalance(staker.address);
 
-      trX = await proStakers.connect(staker).withdraw();
+      trX = await proStakers
+        .connect(staker)
+        .withdraw(ethers.utils.parseEther("0.5"));
       await trX.wait();
 
       const stakerBalanceAfter = await ethers.provider.getBalance(
@@ -53,7 +55,7 @@ describe("ProStakers", () => {
 
       contractBalance = await ethers.provider.getBalance(proStakers.address);
       expect(stakerBalanceAfter > stakerBalance).to.be.true;
-      expect(contractBalance).to.equal(0);
+      expect(contractBalance).to.equal(ethers.utils.parseEther("0.5"));
     });
   });
 });
