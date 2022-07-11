@@ -33,7 +33,8 @@ $ npm start
 
 ```
 
-This command will run `react-app` and `nest-app` in the same terminal concurrently in development mode.
+This command will run `react-app` and `nest-app` on port 3000 and 3001 respectively. They'll run in the same terminal
+concurrently in development mode.
 
 ## Hardhat Project
 
