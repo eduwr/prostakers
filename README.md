@@ -23,9 +23,9 @@ You need to write:
 
 ### [X] 2.1 see the number of tokens on his balance
 
-### [ ] 2.2 put tokens on the balance
+### [X] 2.2 put tokens on the balance
 
-### [ ] 2.3 claim tokens from the balance
+### [X] 2.3 claim tokens from the balance
 
 ## [ ] 3 Write a Nest JS app that listens to events from the smart contract with Ether.JS and saves event payloads in DB (MySQL / SQLite).
 

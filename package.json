@@ -10,6 +10,7 @@
     "hardhat": "^2.10.0"
   },
   "dependencies": {
+    "@nestjs/platform-socket.io": "^9.0.1",
     "dotenv": "^16.0.1"
   }
 }
