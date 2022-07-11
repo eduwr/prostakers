@@ -3,10 +3,17 @@
   "scripts": {
     "test": "hardhat test",
     "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
-    "deploy:staging": "hardhat run --network rinkeby scripts/deploy.ts"
+    "deploy:staging": "hardhat run --network rinkeby scripts/deploy.ts",
+    "start:react": "cd ./react-app && npm run dev",
+    "start:nest": "cd ./nest-app && npm run start:dev",
+    "start": "concurrently \"npm run start:react\" \"npm run start:nest\"",
+    "setup:react": "cd ./react-app && npm i",
+    "setup:nest": "cd ./nest-app && npm i",
+    "setup": "npm i && npm run setup:react && npm run setup:nest"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^1.0.2",
+    "concurrently": "^7.2.2",
     "hardhat": "^2.10.0"
   },
   "dependencies": {
