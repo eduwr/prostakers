@@ -11,8 +11,6 @@ export class EventsController {
     @Query('address') address: string | undefined,
     @Query('type') type: EventType | undefined,
   ) {
-    console.log({ type });
-    console.log({ address });
     return await this.eventsService.findEvents(address, type);
   }
 }

@@ -73,7 +73,7 @@ function App() {
 
   useEffect(() => {
     const subscription = fromFetch("http://localhost:3001/events").subscribe(
-      (response) => console.log(response)
+      (response) => response.json().then((data) => console.log(data))
     );
 
     // this function will be called on component unmount
