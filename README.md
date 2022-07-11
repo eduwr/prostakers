@@ -27,7 +27,7 @@ You need to write:
 
 ### [X] 2.3 claim tokens from the balance
 
-## [ ] 3 Write a Nest JS app that listens to events from the smart contract with Ether.JS and saves event payloads in DB (MySQL / SQLite).
+## [X] 3 Write a Nest JS app that listens to events from the smart contract with Ether.JS and saves event payloads in DB (MySQL / SQLite).
 
 ### [ ] 3.1 Display the data on the website
 

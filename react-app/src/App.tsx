@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { ethers } from "ethers";
 import { useProStakersContract } from "./hooks/useProStakersContract";
+import { fromFetch } from "rxjs/fetch";
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
@@ -68,6 +69,16 @@ function App() {
   useEffect(() => {
     checkConnectedWallet();
     getStakedBalance();
+  }, []);
+
+  useEffect(() => {
+    const subscription = fromFetch("http://localhost:3001/events").subscribe(
+      (response) => console.log(response)
+    );
+
+    // this function will be called on component unmount
+    // it will terminate the fetching
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
