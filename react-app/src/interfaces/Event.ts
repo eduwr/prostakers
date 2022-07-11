@@ -3,7 +3,7 @@ export enum EventType {
   WITHDRAW = "Withdraw",
 }
 
-export interface Event {
+export interface IEvent {
   id: number;
 
   type: EventType;

@@ -3,13 +3,14 @@ import "./App.css";
 import { ethers } from "ethers";
 import { useProStakersContract } from "./hooks/useProStakersContract";
 import { fromFetch } from "rxjs/fetch";
+import { IEvent } from "./interfaces/Event";
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
   const [accountBalance, setAccountBalance] = useState<string>("");
   const [depositAmount, setDepositAmount] = useState<string>("");
   const [withdrawAmount, setWithdrawAmount] = useState<string>("");
-
+  const [events, setEvents] = useState<IEvent[]>([]);
   const { deposit, withdraw, getStakedBalance, stakedBalance } =
     useProStakersContract();
 
@@ -73,11 +74,9 @@ function App() {
 
   useEffect(() => {
     const subscription = fromFetch("http://localhost:3001/events").subscribe(
-      (response) => response.json().then((data) => console.log(data))
+      (response) => response.json().then((data) => setEvents(data))
     );
 
-    // this function will be called on component unmount
-    // it will terminate the fetching
     return () => subscription.unsubscribe();
   }, []);
 
@@ -125,9 +124,34 @@ function App() {
         >
           Withdraw
         </button>
-      </main>
 
-      <footer>My footer</footer>
+        <section>
+          <table>
+            <thead>
+              <tr>
+                <th>id</th>
+                <th>type</th>
+                <th>from</th>
+                <th>to</th>
+                <th>amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map((event) => {
+                return (
+                  <tr key={event.id}>
+                    <td>{event.id}</td>
+                    <td>{event.type}</td>
+                    <td>{event.from}</td>
+                    <td>{event.to}</td>
+                    <td>{event.amount} ETH</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </section>
+      </main>
     </div>
   );
 }
