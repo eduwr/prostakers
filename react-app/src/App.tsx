@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
 import "./App.css";
+
+import { useEffect, useState } from "react";
+
 import { ethers } from "ethers";
 import { useProStakersContract } from "./hooks/useProStakersContract";
 import { fromFetch } from "rxjs/fetch";
@@ -118,52 +120,86 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button onClick={connectWallet}>Connect Wallet</button>
-        <p>{currentAccount}</p>
-        <span>Balance: {accountBalance}</span>
-        <span>Staked: {stakedBalance}</span>
+    <div className="">
+      <header className="navbar p-8">
+        <div className="flex flex-col w-full items-start">
+          <p>
+            <strong>Account: </strong>
+            {currentAccount}
+          </p>
+          <span>
+            <strong>Total Balance: </strong>
+            {accountBalance}
+          </span>
+          <span>
+            <strong>Staked: </strong>
+            {stakedBalance}
+          </span>
+        </div>
+        <button className="btn" onClick={connectWallet}>
+          Connect Wallet
+        </button>
       </header>
-      <main>
-        <form>
-          <label>Deposit:</label>
-          <input
-            value={depositAmount}
-            onChange={(e) => setDepositAmount(e.target.value)}
-          />
-          <span> ETH</span>
-        </form>
-        <button
-          type={"submit"}
-          onClick={(e) => {
-            e.preventDefault();
-            deposit(depositAmount);
-          }}
-        >
-          Deposit Amount
-        </button>
-
-        <form>
-          <label>Withdraw:</label>
-          <input
-            value={withdrawAmount}
-            onChange={(e) => setWithdrawAmount(e.target.value)}
-          />
-          <span> ETH</span>
-        </form>
-        <button
-          type={"submit"}
-          onClick={(e) => {
-            e.preventDefault();
-            withdraw(withdrawAmount);
-          }}
-        >
-          Withdraw
-        </button>
-
-        <section>
-          <table>
+      <div className="divider">Pro Stakers</div>
+      <main className="flex flex-col">
+        <section className="flex justify-around p-8">
+          <div className="card">
+            <form className="form-control">
+              <label className="label">
+                <span className="label-text">Deposit amount:</span>
+              </label>
+              <label className="input-group mb-2">
+                <input
+                  type="text"
+                  placeholder="0.01"
+                  className="input input-bordered"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                />
+                <span>ETH</span>
+              </label>
+            </form>
+            <button
+              className="btn btn-primary"
+              type={"submit"}
+              onClick={(e) => {
+                e.preventDefault();
+                deposit(depositAmount);
+              }}
+            >
+              Deposit
+            </button>
+          </div>
+          <div className="card">
+            <form>
+              <label className="label">
+                <span className="label-text">Withdraw amount:</span>
+              </label>
+              <label className="input-group mb-2">
+                <input
+                  type="text"
+                  placeholder="0.01"
+                  className="input input-bordered"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                />
+                <span> ETH</span>
+              </label>
+            </form>
+            <button
+              className="btn btn-secondary"
+              type={"submit"}
+              onClick={(e) => {
+                e.preventDefault();
+                withdraw(withdrawAmount);
+              }}
+            >
+              Withdraw
+            </button>
+          </div>
+        </section>
+        <section className="overflow-x-auto mt-8">
+          <table className="table w-full">
             <thead>
               <tr>
                 <th>id</th>
