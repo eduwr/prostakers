@@ -95,7 +95,7 @@ It calls EventsServices when it listens to the events.
 > **Notes:** The nest-app is pointing to a deployed contract on rinkeby network.
 > To update the contract address you must update the address on `nest-app/src/events/socket-client.ts` file.
 
-## Honest Notes
+## TODO
 
 I think the overall project is ok, but I could make some things better, these are the things I'd like to do next.
 
@@ -111,28 +111,3 @@ I think the overall project is ok, but I could make some things better, these ar
 * NestJS:
     * Paginate the getEvents request.
 
-## Requirements
-
-You need to write:
-
-- [X] 1 Staking SmartContract where there will be addresses and the number of tokens attached
-
-- [X] 2 - On the front client must connect his metamask and:
-
-- [X] 2.1 see the number of tokens on his balance
-
-- [X] 2.2 put tokens on the balance
-
-- [X] 2.3 claim tokens from the balance
-
-- [X] 3 Write a Nest JS app that listens to events from the smart contract with Ether.JS and saves event payloads in
-  DB (MySQL / SQLite).
-
-- [X] 3.1 Display the data on the website
-
-> Please:
-> - don’t use async/await and use rxjs for getting investor list from smart contract
-> - structure everything in one repo that can be launched on localhost via hardhat.
-> - write readme
-
-And remember - the one who’s making the task is responsible for validating his understanding and the requirements
