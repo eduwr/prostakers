@@ -3,7 +3,7 @@ import "./App.css";
 import { ethers } from "ethers";
 import { useProStakersContract } from "./hooks/useProStakersContract";
 import { fromFetch } from "rxjs/fetch";
-import { IEvent } from "./interfaces/Event";
+import { EventType, IEvent } from "./interfaces/Event";
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
@@ -11,8 +11,14 @@ function App() {
   const [depositAmount, setDepositAmount] = useState<string>("");
   const [withdrawAmount, setWithdrawAmount] = useState<string>("");
   const [events, setEvents] = useState<IEvent[]>([]);
-  const { deposit, withdraw, getStakedBalance, stakedBalance } =
-    useProStakersContract();
+  const {
+    deposit,
+    withdraw,
+    getStakedBalance,
+    stakedBalance,
+    contractABI,
+    address: contractAddress,
+  } = useProStakersContract();
 
   const getAccountBalance = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -70,7 +76,7 @@ function App() {
   useEffect(() => {
     checkConnectedWallet();
     getStakedBalance();
-  }, []);
+  }, [events]);
 
   useEffect(() => {
     const subscription = fromFetch("http://localhost:3001/events").subscribe(
@@ -78,6 +84,37 @@ function App() {
     );
 
     return () => subscription.unsubscribe();
+  }, [stakedBalance]);
+
+  useEffect(() => {
+    const onNewEvent = () => {
+      getStakedBalance();
+    };
+
+    let proStakersContract: ethers.Contract;
+
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      proStakersContract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        signer
+      );
+
+      Object.values(EventType).forEach((type) => {
+        proStakersContract.on(type, onNewEvent);
+      });
+    }
+
+    return () => {
+      if (proStakersContract) {
+        Object.values(EventType).forEach((type) => {
+          proStakersContract.off(type, onNewEvent);
+        });
+      }
+    };
   }, []);
 
   return (
