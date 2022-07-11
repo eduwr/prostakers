@@ -1,4 +1,4 @@
-import { EventType } from '../event-type.enum';
+import { EventType } from './event-type.enum';
 
 export interface EventInfoDTO {
   type: EventType;

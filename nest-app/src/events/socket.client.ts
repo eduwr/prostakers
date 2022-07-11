@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
 import abi from '../abi.json';
 
-import { EventType } from './event-type.enum';
-import { EventInfoDTO } from './interfaces/eventMessage.dto';
+import { EventType } from './interfaces/event-type.enum';
+import { EventInfoDTO } from './interfaces/eventInfo.dto';
+import { EventsService } from './events.service';
 
 @Injectable()
 export class WSService {
@@ -12,7 +13,7 @@ export class WSService {
     'wss://eth-rinkeby.alchemyapi.io/v2/eNqEUwONIDu5dx9HV8EarSZiVb7P-OW9';
   private contract;
 
-  constructor() {
+  constructor(private eventsService: EventsService) {
     const provider = new ethers.providers.WebSocketProvider(this.url);
     this.contract = new ethers.Contract(this.address, abi.abi, provider);
 
@@ -24,7 +25,7 @@ export class WSService {
         amount: ethers.utils.formatEther(amount),
       };
       console.log(info);
-      this.handleDeposit(info);
+      this.persistEvent(info);
     });
 
     this.contract.on(EventType.WITHDRAW, (from, to, amount) => {
@@ -36,11 +37,11 @@ export class WSService {
       };
       console.log(info);
 
-      this.handleWithdraw(info);
+      this.persistEvent(info);
     });
   }
 
-  handleDeposit(payload: EventInfoDTO) {}
-
-  handleWithdraw(payload: EventInfoDTO) {}
+  persistEvent(payload: EventInfoDTO) {
+    return this.eventsService.create(payload);
+  }
 }

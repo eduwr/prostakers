@@ -1,4 +1,3 @@
-import { EventType } from './event-type.enum';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -7,7 +6,7 @@ export class Event {
   id: number;
 
   @Column()
-  type: EventType;
+  type: string;
 
   @Column()
   from: string;
