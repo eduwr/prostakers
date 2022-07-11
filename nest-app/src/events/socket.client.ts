@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
 import abi from '../abi.json';
-import { Event } from './event.entity';
+
+import { EventType } from './event-type.enum';
+import { EventInfoDTO } from './interfaces/eventMessage.dto';
 
 @Injectable()
 export class WSService {
@@ -14,9 +16,9 @@ export class WSService {
     const provider = new ethers.providers.WebSocketProvider(this.url);
     this.contract = new ethers.Contract(this.address, abi.abi, provider);
 
-    this.contract.on('Deposit', (from, to, amount) => {
-      const info: Event = {
-        type: 'Deposit',
+    this.contract.on(EventType.DEPOSIT, (from, to, amount) => {
+      const info: EventInfoDTO = {
+        type: EventType.DEPOSIT,
         from,
         to,
         amount: ethers.utils.formatEther(amount),
@@ -25,9 +27,9 @@ export class WSService {
       this.handleDeposit(info);
     });
 
-    this.contract.on('Withdraw', (from, to, amount) => {
-      const info: Event = {
-        type: 'Withdraw',
+    this.contract.on(EventType.WITHDRAW, (from, to, amount) => {
+      const info: EventInfoDTO = {
+        type: EventType.WITHDRAW,
         from,
         to,
         amount: ethers.utils.formatEther(amount),
@@ -38,7 +40,7 @@ export class WSService {
     });
   }
 
-  handleDeposit(payload: Event) {}
+  handleDeposit(payload: EventInfoDTO) {}
 
-  handleWithdraw(payload: Event) {}
+  handleWithdraw(payload: EventInfoDTO) {}
 }
