@@ -16,6 +16,11 @@ function App() {
   const [ withdrawAmount, setWithdrawAmount ] = useState<string>("");
   const [ events, setEvents ] = useState<IEvent[]>([]);
 
+  const cleanForm = () => {
+    setDepositAmount("");
+    setWithdrawAmount("");
+  }
+
   const cleanState = () => {
     clean();
     setDepositAmount("");
@@ -142,6 +147,7 @@ function App() {
               onClick={(e) => {
                 e.preventDefault();
                 deposit(depositAmount);
+                cleanForm()
               }}
             >
               Deposit
@@ -169,6 +175,7 @@ function App() {
               onClick={(e) => {
                 e.preventDefault();
                 withdraw(withdrawAmount);
+                cleanForm();
               }}
             >
               Withdraw
