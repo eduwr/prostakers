@@ -4,6 +4,7 @@ import { EventsModule } from './events/events.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Event } from './events/event.entity';
 import { ConfigModule } from "@nestjs/config";
+import { EthersModule } from './ethers/ethers.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ConfigModule } from "@nestjs/config";
       entities: [Event],
       synchronize: true,
     }),
+    EthersModule,
   ],
   controllers: [],
   providers: [],
