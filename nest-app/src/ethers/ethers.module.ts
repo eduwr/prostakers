@@ -4,7 +4,7 @@ import { EthersCoreModule } from "./ethers-core.module";
 
 @Module({})
 export class EthersModule {
-  static forRoot(options: EthersModuleOptions = {}): DynamicModule {
+  static forRoot(options: EthersModuleOptions): DynamicModule {
     return {
       module: EthersModule,
       imports: [EthersCoreModule.forRoot(options)]

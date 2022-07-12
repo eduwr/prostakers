@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Event } from './events/event.entity';
 import { ConfigModule } from "@nestjs/config";
 import { EthersModule } from './ethers/ethers.module';
-
+import abi from './abi.json'
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -16,7 +16,11 @@ import { EthersModule } from './ethers/ethers.module';
       entities: [Event],
       synchronize: true,
     }),
-    EthersModule,
+    EthersModule.forRoot({
+      abi: abi.abi,
+      url: process.env.ALCHEMY_CONTRACT_ADDRESS || '',
+      address: process.env.CONTRACT_ADDRESS || ''
+    }),
   ],
   controllers: [],
   providers: [],
