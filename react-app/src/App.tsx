@@ -8,11 +8,12 @@ import { fromFetch } from "rxjs/fetch";
 import { EventType, IEvent } from "./interfaces/Event";
 
 function App() {
-  const [currentAccount, setCurrentAccount] = useState("");
-  const [accountBalance, setAccountBalance] = useState<string>("");
-  const [depositAmount, setDepositAmount] = useState<string>("");
-  const [withdrawAmount, setWithdrawAmount] = useState<string>("");
-  const [events, setEvents] = useState<IEvent[]>([]);
+  const [ currentAccount, setCurrentAccount ] = useState("");
+  const [ accountBalance, setAccountBalance ] = useState<string>("");
+  const [ depositAmount, setDepositAmount ] = useState<string>("");
+  const [ withdrawAmount, setWithdrawAmount ] = useState<string>("");
+  const [ events, setEvents ] = useState<IEvent[]>([]);
+
   const {
     deposit,
     withdraw,
@@ -47,6 +48,7 @@ function App() {
       const balance = await getAccountBalance();
       setCurrentAccount(accounts[0]);
       setAccountBalance(balance);
+      getStakedBalance();
     } catch (error) {
       console.log(error);
     }
@@ -66,9 +68,9 @@ function App() {
         const account = accounts[0];
 
         const balance = await getAccountBalance();
-
         setCurrentAccount(account);
         setAccountBalance(balance);
+        getStakedBalance();
       }
     } catch (error) {
       console.log(error);
@@ -77,8 +79,7 @@ function App() {
 
   useEffect(() => {
     checkConnectedWallet();
-    getStakedBalance();
-  }, [events]);
+  }, [ events ]);
 
   useEffect(() => {
     const subscription = fromFetch("http://localhost:3001/events").subscribe(
@@ -86,7 +87,7 @@ function App() {
     );
 
     return () => subscription.unsubscribe();
-  }, [stakedBalance]);
+  }, [ stakedBalance ]);
 
   useEffect(() => {
     const onNewEvent = () => {
@@ -125,16 +126,18 @@ function App() {
         <div className="flex flex-col w-full items-start">
           <p>
             <strong>Account: </strong>
-            {currentAccount}
+            {currentAccount || "Not Connected!"}
           </p>
-          <span>
-            <strong>Total Balance: </strong>
-            {accountBalance}
-          </span>
-          <span>
-            <strong>Staked: </strong>
-            {stakedBalance}
-          </span>
+          {currentAccount && (
+            <>
+              <span>
+                <strong>Total Balance: </strong>{`${accountBalance} ETH`}
+              </span>
+              <span>
+                <strong>Staked Amount: </strong>{`${stakedBalance} ETH`}
+              </span>
+            </>
+          )}
         </div>
         <button className="btn" onClick={connectWallet}>
           Connect Wallet
@@ -201,26 +204,26 @@ function App() {
         <section className="overflow-x-auto mt-8">
           <table className="table w-full">
             <thead>
-              <tr>
-                <th>id</th>
-                <th>type</th>
-                <th>from</th>
-                <th>to</th>
-                <th>amount</th>
-              </tr>
+            <tr>
+              <th>id</th>
+              <th>type</th>
+              <th>from</th>
+              <th>to</th>
+              <th>amount</th>
+            </tr>
             </thead>
             <tbody>
-              {events.map((event) => {
-                return (
-                  <tr key={event.id}>
-                    <td>{event.id}</td>
-                    <td>{event.type}</td>
-                    <td>{event.from}</td>
-                    <td>{event.to}</td>
-                    <td>{event.amount} ETH</td>
-                  </tr>
-                );
-              })}
+            {events.map((event) => {
+              return (
+                <tr key={event.id}>
+                  <td>{event.id}</td>
+                  <td>{event.type}</td>
+                  <td>{event.from}</td>
+                  <td>{event.to}</td>
+                  <td>{event.amount} ETH</td>
+                </tr>
+              );
+            })}
             </tbody>
           </table>
         </section>
