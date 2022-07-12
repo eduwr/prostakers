@@ -54,10 +54,7 @@ function App() {
       getStakedBalance();
     };
 
-
-
-    // For now, 'eth_accounts' will continue to always return an array
-    function handleAccountsChanged(accounts: string[]) {
+    const handleAccountsChanged = (accounts: string[]) => {
       if (accounts.length === 0) {
         cleanState()
         return
