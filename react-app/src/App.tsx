@@ -6,19 +6,18 @@ import { ethers } from "ethers";
 import { useProStakersContract } from "./hooks/useProStakersContract";
 import { fromFetch } from "rxjs/fetch";
 import { EventType, IEvent } from "./interfaces/Event";
+import { useWallet } from "./hooks/useWallet";
 
 function App() {
 
+  const {connect: connectWallet, account, balance, clean, checkConnectedWallet} = useWallet()
 
-  const [ currentAccount, setCurrentAccount ] = useState("");
-  const [ accountBalance, setAccountBalance ] = useState<string>("");
   const [ depositAmount, setDepositAmount ] = useState<string>("");
   const [ withdrawAmount, setWithdrawAmount ] = useState<string>("");
   const [ events, setEvents ] = useState<IEvent[]>([]);
 
   const cleanState = () => {
-    setCurrentAccount("");
-    setAccountBalance("");
+    clean();
     setDepositAmount("");
     setWithdrawAmount("");
   }
@@ -32,59 +31,11 @@ function App() {
     address: contractAddress,
   } = useProStakersContract();
 
-  const getAccountBalance = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const balance = await signer.getBalance();
-    return ethers.utils.formatEther(balance);
-  };
-
-  const connectWallet = async () => {
-    try {
-      const { ethereum } = window;
-
-      if (!ethereum) {
-        alert("Get MetaMask!");
-        return;
-      }
-
-      const accounts = await ethereum.request({
-        method: "eth_requestAccounts",
-      });
-
-      console.log("Connected", accounts[0]);
-
-      const balance = await getAccountBalance();
-      setCurrentAccount(accounts[0]);
-      setAccountBalance(balance);
+  useEffect(() => {
+    if(account) {
       getStakedBalance();
-    } catch (error) {
-      console.log(error);
     }
-  };
-
-  const checkConnectedWallet = async () => {
-    try {
-      const { ethereum } = window;
-
-      if (!ethereum) {
-        return;
-      }
-
-      const accounts = await ethereum.request({ method: "eth_accounts" });
-
-      if (accounts.length !== 0) {
-        const account = accounts[0];
-
-        const balance = await getAccountBalance();
-        setCurrentAccount(account);
-        setAccountBalance(balance);
-        getStakedBalance();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  }, [account])
 
   useEffect(() => {
     checkConnectedWallet();
@@ -112,7 +63,7 @@ function App() {
         return
       }
 
-      if (accounts[0] !== currentAccount) {
+      if (accounts[0] !== account) {
         checkConnectedWallet()
       }
     }
@@ -152,12 +103,12 @@ function App() {
         <div className="flex flex-col w-full items-start">
           <p>
             <strong>Account: </strong>
-            {currentAccount || "Not Connected!"}
+            {account || "Not Connected!"}
           </p>
-          {currentAccount && (
+          {account && (
             <>
               <span>
-                <strong>Total Balance: </strong>{`${accountBalance} ETH`}
+                <strong>Total Balance: </strong>{`${balance} ETH`}
               </span>
               <span>
                 <strong>Staked Amount: </strong>{`${stakedBalance} ETH`}
@@ -165,8 +116,8 @@ function App() {
             </>
           )}
         </div>
-        <button disabled={!!currentAccount} className="btn" onClick={connectWallet}>
-          {currentAccount ? 'Wallet Connected!' : 'Connect Wallet'}
+        <button disabled={!!account} className="btn" onClick={connectWallet}>
+          {account ? 'Wallet Connected!' : 'Connect Wallet'}
         </button>
       </header>
       <div className="divider">Pro Stakers</div>
