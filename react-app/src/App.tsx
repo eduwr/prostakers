@@ -10,7 +10,7 @@ import { useWallet } from "./hooks/useWallet";
 
 function App() {
 
-  const {connect: connectWallet, account, balance, clean, checkConnectedWallet} = useWallet()
+  const {connect, account, balance, clean, checkConnectedWallet} = useWallet()
 
   const [ depositAmount, setDepositAmount ] = useState<string>("");
   const [ withdrawAmount, setWithdrawAmount ] = useState<string>("");
@@ -116,7 +116,7 @@ function App() {
             </>
           )}
         </div>
-        <button disabled={!!account} className="btn" onClick={connectWallet}>
+        <button disabled={!!account} className="btn" onClick={connect}>
           {account ? 'Wallet Connected!' : 'Connect Wallet'}
         </button>
       </header>
