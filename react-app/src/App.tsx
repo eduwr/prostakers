@@ -11,6 +11,16 @@ import { useWallet } from "./hooks/useWallet";
 function App() {
 
   const { connect, account, balance, clean, checkConnectedWallet } = useWallet()
+  const {
+    deposit,
+    withdraw,
+    getStakedBalance,
+    stakedBalance,
+    contractABI,
+    address: contractAddress,
+    loading
+  } = useProStakersContract();
+
 
   const [ depositAmount, setDepositAmount ] = useState<string>("");
   const [ withdrawAmount, setWithdrawAmount ] = useState<string>("");
@@ -26,15 +36,6 @@ function App() {
     setDepositAmount("");
     setWithdrawAmount("");
   }
-
-  const {
-    deposit,
-    withdraw,
-    getStakedBalance,
-    stakedBalance,
-    contractABI,
-    address: contractAddress,
-  } = useProStakersContract();
 
   useEffect(() => {
     if (account) {
@@ -137,6 +138,7 @@ function App() {
                   className="input input-bordered"
                   value={depositAmount}
                   onChange={(e) => setDepositAmount(e.target.value)}
+                  disabled={loading}
                 />
                 <span>ETH</span>
               </label>
@@ -149,6 +151,7 @@ function App() {
                 deposit(depositAmount);
                 cleanForm()
               }}
+              disabled={loading}
             >
               Deposit
             </button>
@@ -165,6 +168,7 @@ function App() {
                   className="input input-bordered"
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
+                  disabled={loading}
                 />
                 <span> ETH</span>
               </label>
@@ -177,6 +181,7 @@ function App() {
                 withdraw(withdrawAmount);
                 cleanForm();
               }}
+              disabled={loading}
             >
               Withdraw
             </button>
