@@ -22,7 +22,7 @@ export const ProStakersContext = createContext<ProStakersContextValues>(
 );
 
 export const ProStakersProvider = ({ children }: ProviderProps) => {
-  const address = proStakers.address;
+  const address = import.meta.env.VITE_CONTRACT_ADDRESS || proStakers.address;
   const contractABI = abi.abi;
 
   const [stakedBalance, setStakedBalance] = useState("");
