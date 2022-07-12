@@ -8,15 +8,15 @@ import { EventsService } from './events.service';
 
 @Injectable()
 export class WSService {
-  readonly address = '0x9366dBd2e0B524Aea00127011005e7274f29911A';
-  readonly url =
-    'wss://eth-rinkeby.alchemyapi.io/v2/eNqEUwONIDu5dx9HV8EarSZiVb7P-OW9';
+
+
+  readonly address = process.env.CONTRACT_ADDRESS;
+  readonly url = process.env.ALCHEMY_CONTRACT_WS_URL;
   private contract;
 
   constructor(private eventsService: EventsService) {
     const provider = new ethers.providers.WebSocketProvider(this.url);
     this.contract = new ethers.Contract(this.address, abi.abi, provider);
-
     this.contract.on(EventType.DEPOSIT, (from, to, amount) => {
       const info: EventInfoDTO = {
         type: EventType.DEPOSIT,
