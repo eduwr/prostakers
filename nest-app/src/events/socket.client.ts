@@ -8,8 +8,6 @@ import { EventsService } from './events.service';
 
 @Injectable()
 export class WSService {
-
-
   readonly address = process.env.CONTRACT_ADDRESS;
   readonly url = process.env.ALCHEMY_CONTRACT_WS_URL;
   private contract;
@@ -42,6 +40,6 @@ export class WSService {
   }
 
   persistEvent(payload: EventInfoDTO) {
-    return this.eventsService.create(payload);
+    this.eventsService.create(payload);
   }
 }

@@ -8,11 +8,20 @@ import { fromFetch } from "rxjs/fetch";
 import { EventType, IEvent } from "./interfaces/Event";
 
 function App() {
+
+
   const [ currentAccount, setCurrentAccount ] = useState("");
   const [ accountBalance, setAccountBalance ] = useState<string>("");
   const [ depositAmount, setDepositAmount ] = useState<string>("");
   const [ withdrawAmount, setWithdrawAmount ] = useState<string>("");
   const [ events, setEvents ] = useState<IEvent[]>([]);
+
+  const cleanState = () => {
+    setCurrentAccount("");
+    setAccountBalance("");
+    setDepositAmount("");
+    setWithdrawAmount("");
+  }
 
   const {
     deposit,
@@ -82,7 +91,7 @@ function App() {
   }, [ events ]);
 
   useEffect(() => {
-    const subscription = fromFetch("http://localhost:3001/events").subscribe(
+    const subscription = fromFetch(`${import.meta.env.VITE_NEST_BASE_URL}/events`).subscribe(
       (response) => response.json().then((data) => setEvents(data))
     );
 
@@ -94,9 +103,24 @@ function App() {
       getStakedBalance();
     };
 
+
+
+    // For now, 'eth_accounts' will continue to always return an array
+    function handleAccountsChanged(accounts: string[]) {
+      if (accounts.length === 0) {
+        cleanState()
+        return
+      }
+
+      if (accounts[0] !== currentAccount) {
+        checkConnectedWallet()
+      }
+    }
+
     let proStakersContract: ethers.Contract;
 
     if (window.ethereum) {
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
 
@@ -109,6 +133,8 @@ function App() {
       Object.values(EventType).forEach((type) => {
         proStakersContract.on(type, onNewEvent);
       });
+
+
     }
 
     return () => {
@@ -139,8 +165,8 @@ function App() {
             </>
           )}
         </div>
-        <button className="btn" onClick={connectWallet}>
-          Connect Wallet
+        <button disabled={!!currentAccount} className="btn" onClick={connectWallet}>
+          {currentAccount ? 'Wallet Connected!' : 'Connect Wallet'}
         </button>
       </header>
       <div className="divider">Pro Stakers</div>
