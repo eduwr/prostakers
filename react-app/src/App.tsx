@@ -10,7 +10,7 @@ import { useWallet } from "./hooks/useWallet";
 
 function App() {
 
-  const {connect, account, balance, clean, checkConnectedWallet} = useWallet()
+  const { connect, account, balance, clean, checkConnectedWallet } = useWallet()
 
   const [ depositAmount, setDepositAmount ] = useState<string>("");
   const [ withdrawAmount, setWithdrawAmount ] = useState<string>("");
@@ -32,10 +32,10 @@ function App() {
   } = useProStakersContract();
 
   useEffect(() => {
-    if(account) {
+    if (account) {
       getStakedBalance();
     }
-  }, [account])
+  }, [ account ])
 
   useEffect(() => {
     checkConnectedWallet();
@@ -50,10 +50,6 @@ function App() {
   }, [ stakedBalance ]);
 
   useEffect(() => {
-    const onNewEvent = () => {
-      getStakedBalance();
-    };
-
     const handleAccountsChanged = (accounts: string[]) => {
       if (accounts.length === 0) {
         cleanState()
@@ -67,31 +63,35 @@ function App() {
 
     let proStakersContract: ethers.Contract;
 
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
+    const subscribe = () => {
+      if (window.ethereum) {
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
 
-      proStakersContract = new ethers.Contract(
-        contractAddress,
-        contractABI,
-        signer
-      );
+        proStakersContract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
 
-      Object.values(EventType).forEach((type) => {
-        proStakersContract.on(type, onNewEvent);
-      });
-
-
-    }
-
-    return () => {
-      if (proStakersContract) {
         Object.values(EventType).forEach((type) => {
-          proStakersContract.off(type, onNewEvent);
+          proStakersContract.on(type, getStakedBalance);
         });
       }
-    };
+    }
+
+    const unsubscribe = () => {
+      if (proStakersContract) {
+        Object.values(EventType).forEach((type) => {
+          proStakersContract.off(type, getStakedBalance);
+        });
+      }
+    }
+
+    subscribe();
+
+    return unsubscribe;
   }, []);
 
   return (
