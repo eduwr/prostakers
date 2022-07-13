@@ -64,6 +64,10 @@ It also fetches the stored events from nest-app.
 > To update the contract address you must update the address on `react-app/src/contract/proStakers.json`,
 > because I didn't setup any env file yet.
 
+### Environment Variables
+* VITE_CONTRACT_ADDRESS: The contract address.
+* VITE_NEST_BASE_URL: The base url of the nest app.
+
 Scripts:
 
 ```bash
@@ -74,7 +78,41 @@ $ npm run dev
 
 Nest.js Backend is located on `nest-app` folder.
 
+### Ethers Module
+
+Simple global module to export the ContractWebSocketProvider.
+
+
+#### Usage
+
+To enable this module just import it on the AppModule like this:
+
+```ts
+{
+  imports: [
+    EthersModule.forRoot({
+      url: process.env.ALCHEMY_CONTRACT_WS_URL,
+    })
+  ]
+}
+```
+
+#### Providers exported
+
+* ETHERS_WS_CONTRACT_PROVIDER
+* ETHERS_WS_PROVIDER
+
+#### Decorators
+
+* InjectWebSocketContractProvider
+* InjectWebSocketProvider
+
+
 ### Events Module
+
+#### Environment Variables
+* CONTRACT_ADDRESS: The contract address.
+* ALCHEMY_CONTRACT_WS_URL: The websocket URL from Alchemy
 
 #### WebSocket Client
 
@@ -100,15 +138,17 @@ It calls EventsServices when it listens to the events.
 
 I think the overall project is ok, but I could make some things better, these are the things I'd like to do next.
 
-* Setup environment variables properly.
+* [X] Setup environment variables properly.
 * ReactApp:
-    * Deal with the loading state;
-    * Validate the form values;
-    * Create tabs to render Deposit and Withdraw conditionally;
-    * Refactor the App.tsx file into components;
-    * Refactor the signing logic into a custom hook;
-    * Add address and EventType filters to the table.
-    * Add cool styles with themes.
+    * [X] Deal with the loading state;
+    * [ ] Validate the form values;
+    * [ ] Create tabs to render Deposit and Withdraw conditionally;
+    * [ ] Refactor the App.tsx file into components;
+    * [X] Refactor the signing logic into a custom hook;
+    * [ ] Add address and EventType filters to the table .
+    * [ ] Add cool styles with themes.
 * NestJS:
-    * Paginate the getEvents request.
+    * [X] Paginate the getEvents request.
+    * [X] Refactor ethers.js into a module
 
+> **Notes:** All these done items were completed after 11/07/2022.
