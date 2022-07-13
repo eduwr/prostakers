@@ -15,6 +15,7 @@ export interface ProStakersContextValues {
   withdraw: (amount: string) => void;
   getStakedBalance: () => void;
   stakedBalance: string;
+  loading: boolean;
 }
 
 export const ProStakersContext = createContext<ProStakersContextValues>(
@@ -22,9 +23,10 @@ export const ProStakersContext = createContext<ProStakersContextValues>(
 );
 
 export const ProStakersProvider = ({ children }: ProviderProps) => {
-  const address = proStakers.address;
+  const address = import.meta.env.VITE_CONTRACT_ADDRESS || proStakers.address;
   const contractABI = abi.abi;
 
+  const [loading, setLoading] = useState(false);
   const [stakedBalance, setStakedBalance] = useState("");
 
   const buildContract = () => {
@@ -69,7 +71,7 @@ export const ProStakersProvider = ({ children }: ProviderProps) => {
       if (!proStakersContract || !amount) {
         return;
       }
-
+      setLoading(true);
       const proStakersTxn = await proStakersContract.deposit({
         value: amount && ethers.utils.parseEther(amount),
       });
@@ -77,7 +79,9 @@ export const ProStakersProvider = ({ children }: ProviderProps) => {
 
       await proStakersTxn.wait();
       console.log("Deposited -- ", proStakersTxn.hash);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
@@ -89,7 +93,7 @@ export const ProStakersProvider = ({ children }: ProviderProps) => {
       if (!proStakersContract || !amount) {
         return;
       }
-
+      setLoading(true);
       const proStakersTxn = await proStakersContract.withdraw(
         ethers.utils.parseEther(amount)
       );
@@ -97,7 +101,9 @@ export const ProStakersProvider = ({ children }: ProviderProps) => {
 
       await proStakersTxn.wait();
       console.log("Withdrawn -- ", proStakersTxn.hash);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
@@ -111,6 +117,7 @@ export const ProStakersProvider = ({ children }: ProviderProps) => {
         getStakedBalance,
         stakedBalance,
         withdraw,
+        loading
       }}
     >
       {children}

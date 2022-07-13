@@ -5,18 +5,20 @@ import abi from '../abi.json';
 import { EventType } from './interfaces/event-type.enum';
 import { EventInfoDTO } from './interfaces/eventInfo.dto';
 import { EventsService } from './events.service';
+import { EthersContract } from "../ethers/ethers.contract";
+import { InjectWebSocketContractProvider } from "../ethers/ethers.decorators";
 
 @Injectable()
 export class WSService {
-  readonly address = '0x9366dBd2e0B524Aea00127011005e7274f29911A';
-  readonly url =
-    'wss://eth-rinkeby.alchemyapi.io/v2/eNqEUwONIDu5dx9HV8EarSZiVb7P-OW9';
+  readonly address = process.env.CONTRACT_ADDRESS;
+  readonly url = process.env.ALCHEMY_CONTRACT_WS_URL;
   private contract;
 
-  constructor(private eventsService: EventsService) {
-    const provider = new ethers.providers.WebSocketProvider(this.url);
-    this.contract = new ethers.Contract(this.address, abi.abi, provider);
-
+  constructor(
+    private eventsService: EventsService,
+    @InjectWebSocketContractProvider() private contractProvider: EthersContract
+  ) {
+    this.contract = this.contractProvider.create(this.address, abi.abi)
     this.contract.on(EventType.DEPOSIT, (from, to, amount) => {
       const info: EventInfoDTO = {
         type: EventType.DEPOSIT,
@@ -42,6 +44,6 @@ export class WSService {
   }
 
   persistEvent(payload: EventInfoDTO) {
-    return this.eventsService.create(payload);
+    this.eventsService.create(payload);
   }
 }

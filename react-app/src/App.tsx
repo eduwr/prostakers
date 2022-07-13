@@ -6,13 +6,11 @@ import { ethers } from "ethers";
 import { useProStakersContract } from "./hooks/useProStakersContract";
 import { fromFetch } from "rxjs/fetch";
 import { EventType, IEvent } from "./interfaces/Event";
+import { useWallet } from "./hooks/useWallet";
 
 function App() {
-  const [currentAccount, setCurrentAccount] = useState("");
-  const [accountBalance, setAccountBalance] = useState<string>("");
-  const [depositAmount, setDepositAmount] = useState<string>("");
-  const [withdrawAmount, setWithdrawAmount] = useState<string>("");
-  const [events, setEvents] = useState<IEvent[]>([]);
+
+  const { connect, account, balance, clean, checkConnectedWallet } = useWallet()
   const {
     deposit,
     withdraw,
@@ -20,103 +18,86 @@ function App() {
     stakedBalance,
     contractABI,
     address: contractAddress,
+    loading
   } = useProStakersContract();
 
-  const getAccountBalance = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const balance = await signer.getBalance();
-    return ethers.utils.formatEther(balance);
-  };
 
-  const connectWallet = async () => {
-    try {
-      const { ethereum } = window;
+  const [ depositAmount, setDepositAmount ] = useState<string>("");
+  const [ withdrawAmount, setWithdrawAmount ] = useState<string>("");
+  const [ events, setEvents ] = useState<IEvent[]>([]);
 
-      if (!ethereum) {
-        alert("Get MetaMask!");
-        return;
-      }
+  const cleanForm = () => {
+    setDepositAmount("");
+    setWithdrawAmount("");
+  }
 
-      const accounts = await ethereum.request({
-        method: "eth_requestAccounts",
-      });
+  const cleanState = () => {
+    clean();
+    setDepositAmount("");
+    setWithdrawAmount("");
+  }
 
-      console.log("Connected", accounts[0]);
-
-      const balance = await getAccountBalance();
-      setCurrentAccount(accounts[0]);
-      setAccountBalance(balance);
-    } catch (error) {
-      console.log(error);
+  useEffect(() => {
+    if (account) {
+      getStakedBalance();
     }
-  };
-
-  const checkConnectedWallet = async () => {
-    try {
-      const { ethereum } = window;
-
-      if (!ethereum) {
-        return;
-      }
-
-      const accounts = await ethereum.request({ method: "eth_accounts" });
-
-      if (accounts.length !== 0) {
-        const account = accounts[0];
-
-        const balance = await getAccountBalance();
-
-        setCurrentAccount(account);
-        setAccountBalance(balance);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  }, [ account ])
 
   useEffect(() => {
     checkConnectedWallet();
-    getStakedBalance();
-  }, [events]);
+  }, [ events ]);
 
   useEffect(() => {
-    const subscription = fromFetch("http://localhost:3001/events").subscribe(
+    const subscription = fromFetch(`${import.meta.env.VITE_NEST_BASE_URL}/events`).subscribe(
       (response) => response.json().then((data) => setEvents(data))
     );
 
     return () => subscription.unsubscribe();
-  }, [stakedBalance]);
+  }, [ stakedBalance ]);
 
   useEffect(() => {
-    const onNewEvent = () => {
-      getStakedBalance();
-    };
+    const handleAccountsChanged = (accounts: string[]) => {
+      if (accounts.length === 0) {
+        cleanState()
+        return
+      }
+
+      if (accounts[0] !== account) {
+        checkConnectedWallet()
+      }
+    }
 
     let proStakersContract: ethers.Contract;
 
-    if (window.ethereum) {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
+    const subscribe = () => {
+      if (window.ethereum) {
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
 
-      proStakersContract = new ethers.Contract(
-        contractAddress,
-        contractABI,
-        signer
-      );
+        proStakersContract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
 
-      Object.values(EventType).forEach((type) => {
-        proStakersContract.on(type, onNewEvent);
-      });
-    }
-
-    return () => {
-      if (proStakersContract) {
         Object.values(EventType).forEach((type) => {
-          proStakersContract.off(type, onNewEvent);
+          proStakersContract.on(type, getStakedBalance);
         });
       }
-    };
+    }
+
+    const unsubscribe = () => {
+      if (proStakersContract) {
+        Object.values(EventType).forEach((type) => {
+          proStakersContract.off(type, getStakedBalance);
+        });
+      }
+    }
+
+    subscribe();
+
+    return unsubscribe;
   }, []);
 
   return (
@@ -125,19 +106,21 @@ function App() {
         <div className="flex flex-col w-full items-start">
           <p>
             <strong>Account: </strong>
-            {currentAccount}
+            {account || "Not Connected!"}
           </p>
-          <span>
-            <strong>Total Balance: </strong>
-            {accountBalance}
-          </span>
-          <span>
-            <strong>Staked: </strong>
-            {stakedBalance}
-          </span>
+          {account && (
+            <>
+              <span>
+                <strong>Total Balance: </strong>{`${balance} ETH`}
+              </span>
+              <span>
+                <strong>Staked Amount: </strong>{`${stakedBalance} ETH`}
+              </span>
+            </>
+          )}
         </div>
-        <button className="btn" onClick={connectWallet}>
-          Connect Wallet
+        <button disabled={!!account} className="btn" onClick={connect}>
+          {account ? 'Wallet Connected!' : 'Connect Wallet'}
         </button>
       </header>
       <div className="divider">Pro Stakers</div>
@@ -155,6 +138,7 @@ function App() {
                   className="input input-bordered"
                   value={depositAmount}
                   onChange={(e) => setDepositAmount(e.target.value)}
+                  disabled={loading}
                 />
                 <span>ETH</span>
               </label>
@@ -165,7 +149,9 @@ function App() {
               onClick={(e) => {
                 e.preventDefault();
                 deposit(depositAmount);
+                cleanForm()
               }}
+              disabled={loading}
             >
               Deposit
             </button>
@@ -182,6 +168,7 @@ function App() {
                   className="input input-bordered"
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
+                  disabled={loading}
                 />
                 <span> ETH</span>
               </label>
@@ -192,7 +179,9 @@ function App() {
               onClick={(e) => {
                 e.preventDefault();
                 withdraw(withdrawAmount);
+                cleanForm();
               }}
+              disabled={loading}
             >
               Withdraw
             </button>
@@ -201,26 +190,26 @@ function App() {
         <section className="overflow-x-auto mt-8">
           <table className="table w-full">
             <thead>
-              <tr>
-                <th>id</th>
-                <th>type</th>
-                <th>from</th>
-                <th>to</th>
-                <th>amount</th>
-              </tr>
+            <tr>
+              <th>id</th>
+              <th>type</th>
+              <th>from</th>
+              <th>to</th>
+              <th>amount</th>
+            </tr>
             </thead>
             <tbody>
-              {events.map((event) => {
-                return (
-                  <tr key={event.id}>
-                    <td>{event.id}</td>
-                    <td>{event.type}</td>
-                    <td>{event.from}</td>
-                    <td>{event.to}</td>
-                    <td>{event.amount} ETH</td>
-                  </tr>
-                );
-              })}
+            {events.map((event) => {
+              return (
+                <tr key={event.id}>
+                  <td>{event.id}</td>
+                  <td>{event.type}</td>
+                  <td>{event.from}</td>
+                  <td>{event.to}</td>
+                  <td>{event.amount} ETH</td>
+                </tr>
+              );
+            })}
             </tbody>
           </table>
         </section>
