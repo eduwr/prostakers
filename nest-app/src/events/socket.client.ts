@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
 import abi from '../abi.json';
 
@@ -6,6 +6,7 @@ import { EventType } from './interfaces/event-type.enum';
 import { EventInfoDTO } from './interfaces/eventInfo.dto';
 import { EventsService } from './events.service';
 import { EthersContract } from "../ethers/ethers.contract";
+import { InjectWebSocketContractProvider } from "../ethers/ethers.decorators";
 
 @Injectable()
 export class WSService {
@@ -15,7 +16,7 @@ export class WSService {
 
   constructor(
     private eventsService: EventsService,
-    @Inject("ETHERS_WS_CONTRACT_PROVIDER") private contractProvider: EthersContract
+    @InjectWebSocketContractProvider() private contractProvider: EthersContract
   ) {
     this.contract = this.contractProvider.create(this.address, abi.abi)
     this.contract.on(EventType.DEPOSIT, (from, to, amount) => {
