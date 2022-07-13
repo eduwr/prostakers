@@ -1,32 +1,10 @@
-import { Global, Module, DynamicModule, Provider, OnApplicationShutdown } from "@nestjs/common";
-import { Contract } from "ethers";
-import { WebSocketProvider, BaseProvider, Provider as EthersProvider } from '@ethersproject/providers'
-import { defer, lastValueFrom } from "rxjs";
-
-import { DiscoveryService } from "@nestjs/core";
+import { Global, Module, DynamicModule, OnApplicationShutdown } from "@nestjs/common";
+import { Provider as EthersProvider } from '@ethersproject/providers';
+import { DiscoveryModule, DiscoveryService } from "@nestjs/core";
 import { EthersModuleOptions } from "./interfaces/ethers-module-options.interface";
+import { createEthersWSProvider, createContractWSProvider } from "./ethers.providers";
+import { EthersContract } from "./ethers.contract";
 
-
-const createBaseProvider = async (url: string) => new WebSocketProvider(url);
-
-function createWSContractProvider({ abi, address }: EthersModuleOptions): Provider {
-  return {
-    provide: "ETHERS_WS_CONTRACT_PROVIDER",
-    useFactory: async (provider: BaseProvider): Promise<Contract> => {
-      return await lastValueFrom(defer(async () => new Contract(address, abi, provider)))
-    },
-    inject: [ "ETHERS_WS_PROVIDER" ],
-  }
-}
-
-function createEthersWSProvider({ url }: EthersModuleOptions): Provider {
-  return {
-    provide: "ETHERS_WS_PROVIDER",
-    useFactory: async (): Promise<BaseProvider> => {
-      return await lastValueFrom(defer(() => createBaseProvider(url)))
-    },
-  }
-}
 
 @Global()
 @Module({})
@@ -35,19 +13,18 @@ export class EthersCoreModule implements OnApplicationShutdown {
   constructor(private readonly discoveryService: DiscoveryService) {
   }
 
-
   static forRoot(options: EthersModuleOptions): DynamicModule {
     const ethersProvider = createEthersWSProvider(options)
-    const ethersContractProvider = createWSContractProvider(options);
+    const ethersContractProvider = createContractWSProvider();
     return {
       module: EthersCoreModule,
-      exports: [ ethersProvider, ethersContractProvider ],
-      providers: [ ethersProvider, ethersContractProvider ]
+      imports: [ DiscoveryModule ],
+      exports: [ EthersContract, ethersProvider, ethersContractProvider  ],
+      providers: [ EthersContract, ethersProvider, ethersContractProvider ]
     }
   }
 
-
-  onApplicationShutdown(signal?: string): any {
+  async onApplicationShutdown(signal?: string) {
     const providers = this.discoveryService.getProviders();
 
     providers.forEach((provider) => {
