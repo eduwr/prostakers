@@ -1,16 +1,13 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { EventType } from './interfaces/event-type.enum';
+import { FindEventsDTO } from './interfaces/findEvets.dto';
 
 @Controller('events')
 export class EventsController {
   constructor(private eventsService: EventsService) {}
 
   @Get()
-  async index(
-    @Query('address') address: string | undefined,
-    @Query('type') type: EventType | undefined,
-  ) {
-    return await this.eventsService.findEvents(address, type);
+  async index(@Query() findEvents: FindEventsDTO) {
+    return await this.eventsService.findEvents(findEvents);
   }
 }

@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './event.entity';
 import { Repository } from 'typeorm';
 import { EventInfoDTO } from './interfaces/eventInfo.dto';
-import { EventType } from './interfaces/event-type.enum';
+import { FindEventsDTO } from './interfaces/findEvets.dto';
 
 @Injectable()
 export class EventsService {
@@ -35,7 +35,7 @@ export class EventsService {
     }
   }
 
-  async findEvents(address: string, type: EventType) {
+  async findEvents({ address, type, skip = '0', limit = '10' }: FindEventsDTO) {
     const typeQuery = type ? { type } : {};
     try {
       if (!address) {
